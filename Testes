@@ -1,0 +1,28 @@
+from sklearn.model_selection import GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+
+import numpy as np
+
+
+import pickle
+with open ('credit.pkl', 'rb') as f:
+    X_credit_treinamento , y_credit_treinamento , X_credit_teste , y_credit_teste = pickle.load(f)
+
+X_credit_treinamento.shape , y_credit_treinamento.shape
+print (X_credit_treinamento.shape , y_credit_treinamento.shape)
+
+print(X_credit_teste.shape , y_credit_teste.shape)
+
+X_credit = np.concatenate((X_credit_treinamento, X_credit_teste ), axis= 0)
+print(X_credit.shape)
+
+print(X_credit)
+
+
+y_credit = np.concatenate((y_credit_treinamento, y_credit_teste), axis=0)
+print(y_credit)
