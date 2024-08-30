@@ -30,7 +30,7 @@ print(y_credit.shape)
 
 print(y_credit)
 
-
+#arvore de decisão
 DecisionTreeClassifier()
 parametros = {'criterion': ['gini', 'entropy'],
               'splitter':['best', 'random'],
@@ -46,7 +46,7 @@ melhor_resultado = grid_search.best_score_
 print(melhores_parametros)
 print(melhor_resultado)
 
-
+#random forest
 RandomForestClassifier()
 parametros = {'criterion': ['gini', 'entropy'],
               'n_estimators':[10,40,100,150],
@@ -62,7 +62,7 @@ print(melhores_parametros)
 print(melhor_resultado)
 
 
-
+#KNN
 KNeighborsClassifier()
 parametros = {'n_neighbors': [3,5,10,20],
               'p': [1,2]}
@@ -75,7 +75,7 @@ melhor_resultado = grid_search.best_score_
 print(melhores_parametros)
 print(melhor_resultado)
 
-
+#logistica
 LogisticRegression()
 parametros =  {'tol': [0.0001,0.00001,0.000001],
                'C': [1.0,1.5,2.0],
@@ -90,7 +90,7 @@ print(melhores_parametros)
 print(melhor_resultado)
 
 
-
+#svm
 SVC()
 parametros = {'tol': [0.001,0.0001,0.00001],
              'C' : [1.0,1.5,2.0],
@@ -105,7 +105,7 @@ print(melhores_parametros)
 print(melhor_resultado)
 
 
-
+#rede neural 
 MLPClassifier()
 parametros = {'activation': ['relu','logistic', 'tahn'],
               'solver': ['adam', 'sgd'],
@@ -118,3 +118,35 @@ melhores_parametros = grid_search.best_params_
 melhor_resultado = grid_search.best_score_
 print(melhores_parametros)
 print(melhor_resultado)
+
+
+
+
+
+
+
+resultados_arvore = []
+resultados_random_forest = []
+resultados_knn = []
+resultados_logistica = []
+resultados_svm = []
+resultados_rede_neural = []
+
+for i in range(30):     
+    #print(i)
+    kfold = KFold(n_splits=10, shuffle= True, random_state=i)
+
+    arvore = DecisionTreeClassifier(criterion='entropy', min_samples_leaf=1, min_samples_split=5, splitter='best')
+    scores = cross_val_score(arvore, X_credit, y_credit, cv = kfold)
+    
+    #print(scores)
+    #print(scores.mean())
+    resultados_arvore.append(scores.mean())
+    print(resultados_arvore)
+
+    random_forest = RandomForestClassifier(criterion = 'entropy',min_samples_lear = 1, min_samples_split=5, n_estimator=10)
+    scores = cross_val_score(random_forest, X_credit, y_credit, cv = kfold)
+    resultados_random_forest.append(scores.mean())
+
+
+    print(resultados_arvore , resultados_random_forest)
