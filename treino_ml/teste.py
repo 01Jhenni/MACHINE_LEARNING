@@ -1,43 +1,39 @@
-import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications import ResNet50
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras.models import Model
+import cv2
+import streamlit as st
+import numpy as np
+import tempfile
 
-# Configurações
-IMG_SIZE = (224, 224)
-BATCH_SIZE = 32
-EPOCHS = 20
-NUM_CLASSES = 1  # Número de classes a serem treinadas
+# Use this line to capture video from the webcam
+cap = cv2.VideoCapture(0)
 
-# Preparando os dados (ajuste para suas pastas)
-train_datagen = ImageDataGenerator(rescale=1./255, shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
-train_generator = train_datagen.flow_from_directory('C:\\Users\\jhennifer.nascimento\\nfs\\treino_ml\\train\\sp', target_size=IMG_SIZE, batch_size=BATCH_SIZE, class_mode='categorical')
 
-val_datagen = ImageDataGenerator(rescale=1./255)
-val_generator = val_datagen.flow_from_directory('C:\\Users\\jhennifer.nascimento\\nfs\\treino_ml\\validation\\sp', target_size=IMG_SIZE, batch_size=BATCH_SIZE, class_mode='categorical')
+# Set the title for the Streamlit app
+st.title("Video Capture with OpenCV")
 
-# Carregar ResNet50 sem a cabeça (camadas densas finais)
-base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+frame_placeholder = st.empty()
 
-# Congelar as camadas do modelo base
-for layer in base_model.layers:
-    layer.trainable = False
+# Add a "Stop" button and store its state in a variable
+stop_button_pressed = st.button("Stop")
 
-# Adicionar camadas personalizadas no topo
-x = Flatten()(base_model.output)
-x = Dense(1024, activation='relu')(x)
-predictions = Dense(NUM_CLASSES, activation='softmax')(x)
+while cap.isOpened() and not stop_button_pressed:
+    ret, frame = cap.read()
 
-# Modelo final
-model = Model(inputs=base_model.input, outputs=predictions)
+    if not ret:
+        st.write("The video capture has ended.")
+        break
 
-# Compilar o modelo
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    # You can process the frame here if needed
+    # e.g., apply filters, transformations, or object detection
 
-# Treinando o modelo
-model.fit(train_generator, validation_data=val_generator, steps_per_epoch=train_generator.samples // BATCH_SIZE, 
-          validation_steps=val_generator.samples // BATCH_SIZE, epochs=EPOCHS)
+    # Convert the frame from BGR to RGB format
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-# Salvar o modelo treinado
-model.save('meu_modelo_avancado.h5')
+    # Display the frame using Streamlit's st.image
+    frame_placeholder.image(frame, channels="RGB")
+
+    # Break the loop if the 'q' key is pressed or the user clicks the "Stop" button
+    if cv2.waitKey(1) & 0xFF == ord("q") or stop_button_pressed: 
+        break
+
+cap.release()
+cv2.destroyAllWindows()
