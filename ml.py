@@ -1,27 +1,34 @@
-import streamlit as st
 import tensorflow as tf
+from tensorflow.keras.models import load_model
 import numpy as np
-import keras 
+from PIL import Image, ImageOps
 
+# Carregar o modelo treinado no Teachable Machine
+model = load_model('path_to_your_model.h5')
 
-img_file_buffer = st.camera_input("tirar foto")
+# Função para pré-processar a imagem para o modelo
+def preprocess_image(image_path):
+    # Carregar a imagem e ajustar o tamanho para o esperado pelo modelo
+    image = Image.open(image_path)
+    size = (224, 224)  # Tamanho padrão do modelo
+    image = ImageOps.fit(image, size, Image.ANTIALIAS)
+    
+    # Converter a imagem em um array de NumPy e normalizar os valores
+    img_array = np.asarray(image)
+    img_array = np.expand_dims(img_array, axis=0)  # Adicionar uma dimensão extra
+    img_array = img_array.astype(np.float32) / 255.0  # Normalizar os valores para [0,1]
+    
+    return img_array
 
+# Função para fazer a predição
+def predict_image(image_path):
+    processed_image = preprocess_image(image_path)
+    prediction = model.predict(processed_image)
+    return prediction
 
-if img_file_buffer is not None:
-    bytes_data = img_file_buffer.getvalue()
-    img_tensor = tf.io.decode_image(bytes_data, channels=3)
+# Exemplo de uso
+image_path = 'path_to_your_image.jpg'  # Caminho para sua imagem
+result = predict_image(image_path)
 
-    img_resized = tf.image.resize(img_tensor, [224, 224])
-
-    img_preprocessado = preprocess_input(tf.expand_dims(img_resized, axis=0))
-
-    model = MobileNetV2(weights= 'imagenet')
-
-    previsoes = model.predict(img_preprocessado)
-
-    decoded_previsoes= decode_predictions(previsoes, top=1)[0]
-    objeto_dominante = decoded_previsoes[0][1]
-    objeto_score = decoded_previsoes[0][2]
-
-    st.write(f"objeto dominante: {objeto_dominante} ({objeto_score * 100:.2f}%)")
-
+# Exibir o resultado
+print(f'Resultado da predição: {result}')
