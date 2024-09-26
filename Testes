@@ -17,6 +17,7 @@ import pickle
 with open ('credit.pkl', 'rb') as f:
     X_credit_treinamento , y_credit_treinamento , X_credit_teste , y_credit_teste = pickle.load(f)
 
+
 X_credit_treinamento.shape , y_credit_treinamento.shape
 print (X_credit_treinamento.shape , y_credit_treinamento.shape)
 
